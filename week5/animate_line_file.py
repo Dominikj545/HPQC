@@ -187,14 +187,13 @@ def configure_plot(x_positions, y_positions):
     # sets the overall title of the plot
     fig.suptitle('Simulation of Vibrations in a string')
 
-    # sets the x and y limits to be plotted
-    ax1.set_ylim(-1.1, 1.1)
-
     # creates the plot which will be animated
     rope, = ax1.plot(x_positions, y_positions, "o", markersize=5, color="green", label="points on string")
 
     # creates the legend entry
-    ax1.legend(handles=[rope], loc='upper left')
+    ax1.legend(handles=[rope], loc='upper left')#
+    
+    ax1.set_ylim(-1.1, 1.1)
 
     # returns the figure and the plot to be animated
     return fig, rope
@@ -333,6 +332,13 @@ def main():
 
     # configures the initial state of the plot, including x and y positions of points on the string
     fig, rope = configure_plot(x_positions, y_positions)
+
+    # scale y-axis to fit the actual data
+    all_values = data.iloc[:, 2:].values
+    y_min = all_values.min()
+    y_max = all_values.max()
+    margin = (y_max - y_min) * 0.1
+    fig.axes[0].set_ylim(y_min - margin, y_max + margin)
 
     # initialises the python animation 
     ani = animation.FuncAnimation(fig, animate, num_times, interval=interval, blit=True, # mandatory animation arguments
