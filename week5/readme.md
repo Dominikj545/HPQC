@@ -43,6 +43,7 @@ I also changed `animate_line_file.py` so you can pass in an output gif path as a
 ## Part 2 - Parallel version
 
 ### Strategy
+I chose to aggregate in memory rather than on disk. Each rank sends its chunk to root using MPI_Gatherv after every timestep and root writes the full state to the CSV. This avoids the risk of multiple processes writing to the same file.
 
 I split the string into chunks along its length, one chunk per process. Each rank only updates its own chunk each timestep. The tricky part is boundaries. Each rank's first point needs the old last value from the rank before it, so at every timestep each rank receives a boundary value from rank-1 and sends its last value to rank+1. Rank 0 doesn't receive from anyone since its first point is the driven end.
 
