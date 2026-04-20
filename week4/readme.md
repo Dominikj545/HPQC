@@ -85,16 +85,23 @@ For the linear fit y = mx + c, c is the latency (time for a zero-size message) a
 
 Took the week 3 vector addition and made versions using different collective operations. All tested at N = 100,000,000 with np=4.
 
+I expected Scatter to be fastest for distribution because each process only receives the data it needs. Broadcast should be slower because it sends the full array to every process. DIY (manual Send/Recv) should be slowest because root sends one chunk at a time in a loop.
+
+For collection I expected Reduce to be fastest since it collects and sums in one call. Gather should be close but root still has to loop through the gathered array. The original Send/Recv loop should be slowest.
+
 | Version | What it does | Runtime (s) |
 |---|---|---|
 | DIY (original) | all processes build vector, send/recv loop | 0.0277 |
+| DIY Send/Recv | root builds vector, sends chunks manually | 0.0239 |
 | Gather + loop | all processes build vector, Gather partial sums, root loops to sum | 0.0216 |
 | Broadcast + Reduce | root builds vector, Bcast to all, Reduce | 0.3813 |
 | Scatter + Reduce | root builds vector, Scatter chunks, Reduce | 0.0218 |
 | Reduce only | all processes build vector, Reduce | 0.0277 |
 | Custom Reduce | same but with MPI_Op_create | 0.0274 |
 
-Broadcast was way slower because it sends the full 100M array to every process even though each one only needs its chunk. Scatter was fastest since each process only receives what it needs.
+Broadcast was way slower because it sends the full 100M array to every process even though each one only needs its chunk. This matched the prediction.
+
+Scatter and DIY Send/Recv were both fast (0.0218 vs 0.0239). Scatter was slightly faster because MPI can optimise the distribution internally while DIY sends one chunk at a time. This also matched the prediction.
 
 Gather and Scatter+Reduce came out at roughly the same speed (0.0216 vs 0.0218). Gather collects the partial sums into an array on root which then loops to add them up. Reduce does the summing as part of the collective call itself. For such a small amount of data (one int per process) the difference is negligible.
 
