@@ -7,7 +7,7 @@ This exercise is about simulating vibrations on a string. I started with the lec
 The serial version needs `-lm` to link the math library:
 ```
 gcc string_wave.c -o ~/bin/string_wave -lm
-./bin/string_wave 50 5 25 data/string_wave.csv
+./bin/string_wave 50 5 100 data/string_wave.csv
 ```
 
 Arguments are points on the string, number of cycles, samples per cycle, and output file path.
@@ -82,4 +82,4 @@ The left end is driven by the sine wave. The right end is clamped at zero.
 
 The result looks way more realistic. The wave has actual curvature and the amplitude drops off as it moves along the string because of the damping. The original just shifts dots to the right with no real physics.
 
-I used k = 50, mass = 1, damping = 0.995. Found these by trial and error until it looked stable.
+I used k = 50, mass = 1, damping = 0.995. Found these by trial and error until it looked stable. The spring model needs more samples per cycle (100 instead of 25) because the smaller timestep keeps the simulation from blowing up.
