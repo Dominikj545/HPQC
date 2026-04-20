@@ -20,6 +20,8 @@ The bandwidth version takes two arguments, number of pings and array size in int
 mpirun -np 2 ~/bin/pingpong_bw 10000 1024
 ```
 
+All vector programs should output `Sum: 4950` for an input of 100 and `Sum: 45` for an input of 10.
+
 ## Part 1 - comm_test
 
 Running the original `comm_test_mpi.c` with different process counts, the receives on root always come in order (1, 2, 3...) because root loops through ranks sequentially. But the send messages from clients print in random order since they all run at the same time. With np=1 it prints a warning.
