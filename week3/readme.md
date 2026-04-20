@@ -50,6 +50,24 @@ The program is split into several functions:
 
 The formula that gives the same result without MPI is `num_arg * n*(n-1)/2` where n is the universe size. For 4 processes and argument 10 that gives `10 * 4*3/2 = 60`.
 
+The diagram below shows how the functions in proof.c connect together.
+
+```mermaid
+graph TD
+    A[main] --> B[check_args]
+    A --> C[Initialise MPI]
+    A --> D[Get rank and size]
+    A --> E[check_uni_size]
+    A --> F[check_task]
+    A --> G[Finalise MPI]
+    F -->|rank == 0| H[root_task]
+    F -->|rank > 0| I[client_task]
+    H --> J[loop recv]
+    H --> K[sum and print]
+    I --> L[compute rank * num_arg]
+    I --> M[send to root]
+```
+
 ## Part 3 - Vector addition
 
 I started with `vector_serial.c` from the lecturer's repo. The original has a TODO where the vector is supposed to be filled with values. I modified it so `my_vector[i] = i` which gives a sum equal to `n*(n-1)/2` for a vector of size n.
