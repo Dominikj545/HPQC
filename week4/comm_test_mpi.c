@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <mpi.h>
 
 void root_task(int my_rank, int uni_size);
 void client_task(int my_rank, int uni_size);
+void check_uni_size(int uni_size);
+void check_task(int my_rank, int uni_size);
 
 int main(int argc, char **argv)
 {
@@ -14,24 +17,38 @@ int main(int argc, char **argv)
 	ierror = MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 	ierror = MPI_Comm_size(MPI_COMM_WORLD, &uni_size);
 
-	if (uni_size > 1)
-	{
-		if (0 == my_rank)
-		{
-			root_task(my_rank, uni_size);
-		} // end if (0 == my_rank)
-		else
-		{
-			client_task(my_rank, uni_size);
-		} // end else
-	} // end if (uni_size > 1)
-	else
-	{
-		printf("Unable to communicate with less than 2 processes. MPI communicator size = %d\n", uni_size);
-	}
+	check_uni_size(uni_size);
+	check_task(my_rank, uni_size);
 
 	ierror = MPI_Finalize();
 	return 0;
+}
+
+void check_uni_size(int uni_size)
+{
+	int min_uni_size = 2;
+	if (uni_size >= min_uni_size)
+	{
+		return;
+	} // end if (uni_size >= min_uni_size)
+	else
+	{
+		fprintf(stderr, "Unable to communicate with fewer than %d processes. MPI communicator size = %d\n",
+				min_uni_size, uni_size);
+		exit(-1);
+	}
+}
+
+void check_task(int my_rank, int uni_size)
+{
+	if (0 == my_rank)
+	{
+		root_task(my_rank, uni_size);
+	} // end if (0 == my_rank)
+	else
+	{
+		client_task(my_rank, uni_size);
+	} // end else
 }
 
 void root_task(int my_rank, int uni_size)
