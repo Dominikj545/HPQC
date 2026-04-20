@@ -88,12 +88,15 @@ Took the week 3 vector addition and made versions using different collective ope
 | Version | What it does | Runtime (s) |
 |---|---|---|
 | DIY (original) | all processes build vector, send/recv loop | 0.0277 |
+| Gather + loop | all processes build vector, Gather partial sums, root loops to sum | 0.0216 |
 | Broadcast + Reduce | root builds vector, Bcast to all, Reduce | 0.3813 |
 | Scatter + Reduce | root builds vector, Scatter chunks, Reduce | 0.0218 |
 | Reduce only | all processes build vector, Reduce | 0.0277 |
 | Custom Reduce | same but with MPI_Op_create | 0.0274 |
 
 Broadcast was way slower because it sends the full 100M array to every process even though each one only needs its chunk. Scatter was fastest since each process only receives what it needs.
+
+Gather and Scatter+Reduce came out at roughly the same speed (0.0216 vs 0.0218). Gather collects the partial sums into an array on root which then loops to add them up. Reduce does the summing as part of the collective call itself. For such a small amount of data (one int per process) the difference is negligible.
 
 DIY and Reduce were basically the same speed because the bottleneck is every process building the full vector locally, not the communication step. Replacing the send/recv loop with a single Reduce call doesn't help much when the real work is in the vector creation and summation.
 
