@@ -57,12 +57,15 @@ void root_task(int my_rank, int uni_size)
 	recv_message = source = tag = 0;
 	count = 1;
 	MPI_Status status;
+	double start_time, end_time;
 
 	for (source = 1; source < uni_size; source++)
 	{
+		start_time = MPI_Wtime();
 		MPI_Recv(&recv_message, count, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
-		printf("Hello, I am %d of %d. Received %d from Rank %d\n",
-				my_rank, uni_size, recv_message, source);
+		end_time = MPI_Wtime();
+		printf("[Rank %d] received %d from Rank %d in %lf s\n",
+				my_rank, recv_message, source, end_time - start_time);
 	} // end for (source = 1; source < uni_size; source++)
 }
 
@@ -71,10 +74,13 @@ void client_task(int my_rank, int uni_size)
 	int send_message, count, dest, tag;
 	send_message = dest = tag = 0;
 	count = 1;
+	double start_time, end_time;
 
 	dest = 0;
 	send_message = my_rank * 10;
+	start_time = MPI_Wtime();
 	MPI_Send(&send_message, count, MPI_INT, dest, tag, MPI_COMM_WORLD);
-	printf("Hello, I am %d of %d. Sent %d to Rank %d\n",
-			my_rank, uni_size, send_message, dest);
+	end_time = MPI_Wtime();
+	printf("[Rank %d] sent %d to Rank %d in %lf s\n",
+			my_rank, send_message, dest, end_time - start_time);
 }
