@@ -2,10 +2,17 @@
 #include <stdlib.h>
 #include <math.h>
 
+// struct to hold all the command line arguments
+struct args
+{
+	int points;
+	int cycles;
+	int samples;
+	char* output_path;
+};
+
 // declares the functions that will be called within main
-// note how declaration lines are similar to the initial line
-// of a function definition, but with a semicolon at the end;
-int check_args(int argc, char **argv);
+struct args check_args(int argc, char **argv);
 void initialise_vector(double vector[], int size, double initial);
 void print_vector(double vector[], int size);
 int sum_vector(int vector[], int size);
@@ -16,12 +23,12 @@ void print_header(FILE** p_out_file, int points);
 
 int main(int argc, char **argv)
 {
-	// declare and initialise the numerical argument variable
-	int points = check_args(argc, argv);
+	// get all arguments from the command line
+	struct args my_args = check_args(argc, argv);
 
-	// creates variables for the vibration
-	int cycles = 5; // number of cycles to show
-	int samples = 25; // sampling rate in samples per cycle
+	int points = my_args.points;
+	int cycles = my_args.cycles;
+	int samples = my_args.samples;
 	int time_steps = cycles * samples + 1; // total timesteps
 	double step_size = 1.0/samples;
 
@@ -35,9 +42,14 @@ int main(int argc, char **argv)
 	// and initialises every element to zero
 	initialise_vector(positions, points, 0.0);
 
-	// creates a file
+	// creates a file at the path specified by the user
 	FILE* out_file;
-     	out_file = fopen("data/string_wave.csv","w");
+     	out_file = fopen(my_args.output_path, "w");
+	if (out_file == NULL)
+	{
+		fprintf(stderr, "ERROR: Could not open file %s\n", my_args.output_path);
+		exit(-1);
+	}
 	print_header(&out_file, points);
 
 	// iterates through each time step in the collection
@@ -97,7 +109,7 @@ void update_positions(double* positions, int points, double time)
 	// initialises the index
 	int i = 0;
 	new_positions[i] = driver(time);
-	// creates new positions by setting value of previous element 
+	// creates new positions by setting value of previous element
 	for (i = 1; i < points; i++)
 	{
 		new_positions[i] = positions[i-1];
@@ -161,27 +173,26 @@ void print_vector(double vector[], int size)
 	}
 }
 
-// defines a function that checks your arguments to make sure they'll do what you need
-int check_args(int argc, char **argv)
+// checks arguments and returns them in a struct
+struct args check_args(int argc, char **argv)
 {
-	// declare and initialise the numerical argument
-	int num_arg = 0;
+	struct args my_args;
 
-	// check the number of arguments
-	if (argc == 2) // program name and numerical argument
+	if (argc == 5) // points, cycles, samples, output path
 	{
-		// declare and initialise the numerical argument
-		num_arg = atoi(argv[1]);
+		my_args.points = atoi(argv[1]);
+		my_args.cycles = atoi(argv[2]);
+		my_args.samples = atoi(argv[3]);
+		my_args.output_path = argv[4];
 	}
 	else // the number of arguments is incorrect
 	{
 		// raise an error
-		fprintf(stderr, "ERROR: You did not provide a numerical argument!\n");
-		fprintf(stderr, "Correct use: %s [NUMBER]\n", argv[0]);
+		fprintf(stderr, "ERROR: Wrong number of arguments!\n");
+		fprintf(stderr, "Correct use: %s [POINTS] [CYCLES] [SAMPLES] [OUTPUT_FILE]\n", argv[0]);
 
 		// and exit COMPLETELY
 		exit (-1);
 	}
-	return num_arg;
+	return my_args;
 }
-

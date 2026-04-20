@@ -316,6 +316,12 @@ def main():
     # gets the filename from the command line
     filename = get_file_name("csv")
 
+    # gets output path from second argument or uses default
+    if len(sys.argv) >= 3:
+        output_path = sys.argv[2]
+    else:
+        output_path = generate_path(basename = 'animate_string_file', extension = 'gif')
+
     # gets the data and its dimensions from the file
     data, num_positions, num_times = get_data(filename)
 
@@ -333,8 +339,7 @@ def main():
                                   fargs=(data, rope)) # arguments to the animate function
 
     # saves the animation to disk
-    filename = generate_path(basename = 'animate_string_file', extension = 'gif')
-    ani.save(filename=filename, writer="pillow", fps=fps)
+    ani.save(filename=output_path, writer="pillow", fps=fps)
 
 
 # we use this convention to ensure that if we import functions from this script, it is not executed
