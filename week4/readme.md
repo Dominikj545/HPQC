@@ -109,4 +109,4 @@ Gather and Scatter+Reduce came out at roughly the same speed (0.0216 vs 0.0218).
 
 DIY and Reduce were basically the same speed because the bottleneck is every process building the full vector locally, not the communication step. Replacing the send/recv loop with a single Reduce call doesn't help much when the real work is in the vector creation and summation.
 
-The custom reduce using `MPI_Op_create` gave the same answer as `MPI_SUM`. It was a tiny bit slower (0.0274 vs 0.0204) since the built-in version is optimised internally.
+The custom reduce using `MPI_Op_create` gave the same answer as `MPI_SUM`. It was a tiny bit slower (0.0274 vs 0.0277) since the built-in version is optimised internally.
