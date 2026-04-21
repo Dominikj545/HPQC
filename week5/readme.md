@@ -84,3 +84,5 @@ The left end is driven by the sine wave. The right end is clamped at zero.
 The result looks way more realistic. The wave has actual curvature and the amplitude drops off as it moves along the string because of the damping. The original just shifts dots to the right with no real physics.
 
 I used k = 50, mass = 1, damping = 0.995. Found these by trial and error until it looked stable. The spring model needs more samples per cycle (100 instead of 25) because the smaller timestep keeps the simulation from blowing up.
+
+A 1D Cartesian topology with `MPI_Cart_create` would be a natural fit here since each rank only needs to communicate with its immediate neighbours, but since the spring model is serial and the parallel benchmarks showed this problem doesn't benefit from parallelism at this scale, I didn't implement it.
